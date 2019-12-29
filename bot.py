@@ -3,7 +3,9 @@ import json
 import pickle
 import numpy as np
 
-TOKEN = 'NjYwNjEyODc3MDI3MTE1MDI1.XggBgQ.jBjDSD1LitWqSGqHZQQMqqqegCQ'
+TOKEN = 'NjYwNzI2MzA4Mzg0NDA3NTgz.XghHAQ.GNU4N0Q6wnh5-vdHuSvlktFpQyE'
+THRESHOLD = 0.7
+MIN_CHARS = 15
 
 
 def predict_sentiment(classifier, class_dict, input):
@@ -39,6 +41,7 @@ async def on_message(message):
 
     # change emojis
     if message.content.startswith('!change'):
+        # need admin permissions
         if message.author.server_permissions.administrator != True:
             msg = '{0.author.mention}, you do not have permission to issue this command.'
             msg = msg.format(message)
@@ -78,11 +81,11 @@ async def on_message(message):
         return
 
     # predict sentiment and react
-    if len(message.content) > 15:
+    if len(message.content) >= MIN_CHARS:
         sentiment, proba = predict_sentiment(
             classifier, emotions, message.content)
         print('Sentiment:', sentiment, "Proba:", proba)
-        if proba > 0.7:
+        if proba > THRESHOLD:
             await client.add_reaction(message, reactions[sentiment])
 
 
