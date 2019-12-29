@@ -3,7 +3,7 @@ import json
 import pickle
 import numpy as np
 
-TOKEN = 'NjYwNjEyODc3MDI3MTE1MDI1.XggBgQ.jBjDSD1LitWqSGqHZQQMqqqegCQ'
+TOKEN = 'NjYwNjEyODc3MDI3MTE1MDI1.Xgg9Zw.857xcdKfUFtwB1GSyJVpXRrQO5o'
 
 
 def predict_sentiment(classifier, class_dict, input):
