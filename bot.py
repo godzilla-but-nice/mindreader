@@ -3,9 +3,10 @@ import json
 import pickle
 import pymongo
 import numpy as np
+import os
 
 # config
-TOKEN = 'NjYwNzI2MzA4Mzg0NDA3NTgz.Xgj-AA._ZpocAc1iNRbN4C9gKvVb0p-5jM'
+TOKEN = os.environ['TOKEN']
 THRESHOLD = 0.7
 MIN_CHARS = 15
 EMOTIONS = {0: 'neg', 2: 'neu', 1: 'pos'}  # TODO: make sure keys are correct
