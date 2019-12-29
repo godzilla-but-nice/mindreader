@@ -1,11 +1,16 @@
 import discord
 import json
 import pickle
+import pymongo
 import numpy as np
 
-TOKEN = 'NjYwNzI2MzA4Mzg0NDA3NTgz.XghHAQ.GNU4N0Q6wnh5-vdHuSvlktFpQyE'
+# config
+TOKEN = 'NjYwNzI2MzA4Mzg0NDA3NTgz.XghZjQ.9T6LWeBDsWUXNG-nrzT_vPY2tw8'
 THRESHOLD = 0.7
 MIN_CHARS = 15
+EMOTIONS = {0: 'neg', 2: 'neu', 1: 'pos'} #TODO: make sure keys are correct
+
+
 
 
 def predict_sentiment(classifier, class_dict, input):
@@ -21,6 +26,12 @@ def tokenizer(text):
     return text.split()
 
 
+# db stuff
+mongo_client = pymongo.MongoClient(
+    'mongodb+srv://mindreader_bot:3VihUx5OHnMHO3xP@mindreader-fzoou.mongodb.net/test?retryWrites=true&w=majority')
+db = mongo_client.test
+servers = db.servers
+
 # load reactions
 data = open('reactions.json', 'r')
 reactions = json.load(data)
@@ -29,12 +40,12 @@ client = discord.Client()
 
 # load classifier
 classifier = pickle.load(open('classifier.pkl', 'rb'))
-emotions = {0: 'neg', 1: 'pos'}
 
 
 @client.event
 async def on_message(message):
-    global reactions, emotions
+    global EMOTIONS, THRESHOLD, MIN_CHARS
+    server = message.server.name.lower()
     # we do not want the bot to reply to itself
     if message.author == client.user:
         return
@@ -50,12 +61,10 @@ async def on_message(message):
 
         parsed_mes = message.content.split()
         try:
-            if parsed_mes[1] not in reactions.keys():
+            if parsed_mes[1] not in EMOTIONS.values():
                 raise Exception('Invalid sentiment.')
             await client.add_reaction(message, parsed_mes[2])
-            reactions[parsed_mes[1]] = parsed_mes[2]
-            data = open('reactions.json', 'w')
-            json.dump(reactions, data, indent=4)
+            servers.update_one({"name": server}, {'$set' : {parsed_mes[1] : parsed_mes[2]}})
             return
 
         except Exception as e:
@@ -68,8 +77,12 @@ async def on_message(message):
     if message.content.startswith('!test'):
         parsed_mes = message.content.split()
         try:
-            if parsed_mes[1] not in reactions.keys():
+            if parsed_mes[1] not in EMOTIONS.values():
                 raise Exception('Invalid sentiment.')
+            doc = servers.find_one({"name": server})
+            reaction = servers.find_one(
+                {"name": server})['reactions'][parsed_mes[1]]
+            await client.add_reaction(message, reaction)
 
         except Exception as e:
             msg = '{0.author.mention} ' + str(e)
@@ -77,16 +90,14 @@ async def on_message(message):
             await client.send_message(message.channel, msg)
             return
 
-        await client.add_reaction(message, reactions[parsed_mes[1]])
-        return
-
     # predict sentiment and react
     if len(message.content) >= MIN_CHARS:
-        sentiment, proba = predict_sentiment(
-            classifier, emotions, message.content)
-        print('Sentiment:', sentiment, "Proba:", proba)
+        emotion, proba = predict_sentiment(
+            classifier, EMOTIONS, message.content)
+        print('Sentiment:', emotion, "Proba:", proba)
         if proba > THRESHOLD:
-            await client.add_reaction(message, reactions[sentiment])
+            reaction = servers.find_one({'name' : server})['reactions'][emotion]
+            await client.add_reaction(message, reaction)
 
 
 @client.event
@@ -95,6 +106,16 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+    print('Servers connected to:')
+    for server in client.servers:
+        print(server)
+
+    # debug and tests
+    db_cursor = servers.find()
+    for item in db_cursor:
+        print(item)
+    print(servers.find_one({"name": "phantasmalpup"})['reactions']['pos'])
+
 
 client.run(TOKEN)
 client.close()
