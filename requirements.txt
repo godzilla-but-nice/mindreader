@@ -1,0 +1,6 @@
+git+https://github.com/Rapptz/discord.py==0.16.12
+pandas
+numpy
+scikit-learn
+json
+pickle
