@@ -5,12 +5,24 @@ import pymongo
 import numpy as np
 
 # config
-TOKEN = 'NjYwNzI2MzA4Mzg0NDA3NTgz.XghZjQ.9T6LWeBDsWUXNG-nrzT_vPY2tw8'
+TOKEN = 'NjYwNzI2MzA4Mzg0NDA3NTgz.Xgj-AA._ZpocAc1iNRbN4C9gKvVb0p-5jM'
 THRESHOLD = 0.7
 MIN_CHARS = 15
-EMOTIONS = {0: 'neg', 2: 'neu', 1: 'pos'} #TODO: make sure keys are correct
+EMOTIONS = {0: 'neg', 2: 'neu', 1: 'pos'}  # TODO: make sure keys are correct
 
 
+def init_server_db(server, servers):
+    if servers.find_one({'server_id': server.id}) != None:
+        return
+    servers.insert_one({
+        'server_id': server.id,
+        'name': server.name.lower(),
+        'reactions': {
+            'pos': '😀',
+            'neg': '☹️',
+            'neu': '😐'
+        }
+    })
 
 
 def predict_sentiment(classifier, class_dict, input):
@@ -32,10 +44,7 @@ mongo_client = pymongo.MongoClient(
 db = mongo_client.test
 servers = db.servers
 
-# load reactions
-data = open('reactions.json', 'r')
-reactions = json.load(data)
-data.close()
+# discord
 client = discord.Client()
 
 # load classifier
@@ -64,7 +73,12 @@ async def on_message(message):
             if parsed_mes[1] not in EMOTIONS.values():
                 raise Exception('Invalid sentiment.')
             await client.add_reaction(message, parsed_mes[2])
-            servers.update_one({"name": server}, {'$set' : {parsed_mes[1] : parsed_mes[2]}})
+            servers.update_one(
+                {"name": server},
+                {'$set': {
+                    'reactions.' + parsed_mes[1]: parsed_mes[2]
+                }
+                })
             return
 
         except Exception as e:
@@ -83,6 +97,7 @@ async def on_message(message):
             reaction = servers.find_one(
                 {"name": server})['reactions'][parsed_mes[1]]
             await client.add_reaction(message, reaction)
+            return
 
         except Exception as e:
             msg = '{0.author.mention} ' + str(e)
@@ -96,8 +111,12 @@ async def on_message(message):
             classifier, EMOTIONS, message.content)
         print('Sentiment:', emotion, "Proba:", proba)
         if proba > THRESHOLD:
-            reaction = servers.find_one({'name' : server})['reactions'][emotion]
+            reaction = servers.find_one({'name': server})['reactions'][emotion]
             await client.add_reaction(message, reaction)
+
+@client.event
+async def on_server_join(server):
+    init_server_db(server, servers)
 
 
 @client.event
@@ -108,7 +127,7 @@ async def on_ready():
     print('------')
     print('Servers connected to:')
     for server in client.servers:
-        print(server)
+        print(server.id)
 
     # debug and tests
     db_cursor = servers.find()
