@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import re
-import pyprind
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import HashingVectorizer
 from sklearn.model_selection import train_test_split
@@ -69,7 +68,6 @@ def train_classifier(data_path, num_batches=100, test_frac=0.2):
     train_samples = round(sample_count * (1 - test_frac))
     test_size = sample_count - train_samples - 1
     train_size = round(train_samples / num_batches)
-    pbar = pyprind.ProgBar(num_batches)
     classes = np.array([0, 4])
 
     # initialize vectorizer and classifier
@@ -83,13 +81,13 @@ def train_classifier(data_path, num_batches=100, test_frac=0.2):
     doc_stream = stream_docs(path=data_path)
 
     # perform training
-    for _ in range(num_batches - 5):
+    for b in range(num_batches - 5):
+        print('Training batch {0} / {1}'.format(b, num_batches))
         X_train, y_train = get_minibatch(doc_stream, size=train_size)
         if not X_train:
             break
         X_train = vect.transform(X_train)
         clf.partial_fit(X_train, y_train, classes=classes)
-        pbar.update()
 
     X_test, y_test = get_minibatch(doc_stream, size=test_size)
     X_test = vect.transform(X_test)

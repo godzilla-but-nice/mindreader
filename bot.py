@@ -39,6 +39,7 @@ servers = db.servers
 client = discord.Client()
 
 # load classifier
+print('Training Classifier')
 vect, clf = train_classifier(TRAINING_DATA)
 
 
