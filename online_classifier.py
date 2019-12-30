@@ -5,6 +5,7 @@ from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import HashingVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import SGDClassifier
+import pickle
 # from tensorflow import keras
 # import tensorflow as tf
 try:
@@ -92,5 +93,7 @@ def train_classifier(data_path, num_batches=100, test_frac=0.2):
     X_test, y_test = get_minibatch(doc_stream, size=test_size)
     X_test = vect.transform(X_test)
     print('\nAccuracy: %.3f' % clf.score(X_test, y_test))
+    pickle.dump(clf, 'pickle_objects/classifier.pkl')
+    pickle.dump(vect, 'pickle_objects/vectorizer.pkl')
 
     return clf, vect
