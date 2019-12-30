@@ -12,7 +12,7 @@ MIN_CHARS = 15
 EMOTIONS = {0: 'neg', 2: 'neu', 1: 'pos'}  # TODO: make sure keys are correct
 
 
-def init_server_db(server, servers):
+async def init_server_db(server, servers):  # TODO: enforce schema
     if servers.find_one({'server_id': server.id}) != None:
         return
     servers.insert_one({
@@ -41,7 +41,8 @@ def tokenizer(text):
 
 # db stuff
 mongo_client = pymongo.MongoClient(
-    'mongodb+srv://mindreader_bot:3VihUx5OHnMHO3xP@mindreader-fzoou.mongodb.net/test?retryWrites=true&w=majority')
+    'mongodb+srv://' + os.environ['DB_USERNAME'] + ':' + os.environ['DB_PASS'] +
+    '@mindreader-fzoou.mongodb.net/test?retryWrites=true&w=majority')
 db = mongo_client.test
 servers = db.servers
 
@@ -55,7 +56,7 @@ classifier = pickle.load(open('classifier.pkl', 'rb'))
 @client.event
 async def on_message(message):
     global EMOTIONS, THRESHOLD, MIN_CHARS
-    server = message.server.name.lower()
+    server_id = message.server.id
     # we do not want the bot to reply to itself
     if message.author == client.user:
         return
@@ -75,7 +76,7 @@ async def on_message(message):
                 raise Exception('Invalid sentiment.')
             await client.add_reaction(message, parsed_mes[2])
             servers.update_one(
-                {"name": server},
+                {'server_id': server_id},
                 {'$set': {
                     'reactions.' + parsed_mes[1]: parsed_mes[2]
                 }
@@ -94,9 +95,9 @@ async def on_message(message):
         try:
             if parsed_mes[1] not in EMOTIONS.values():
                 raise Exception('Invalid sentiment.')
-            doc = servers.find_one({"name": server})
+            doc = servers.find_one({'server_id': server_id})
             reaction = servers.find_one(
-                {"name": server})['reactions'][parsed_mes[1]]
+                {'server_id': server_id})['reactions'][parsed_mes[1]]
             await client.add_reaction(message, reaction)
             return
 
@@ -110,14 +111,29 @@ async def on_message(message):
     if len(message.content) >= MIN_CHARS:
         emotion, proba = predict_sentiment(
             classifier, EMOTIONS, message.content)
-        print('Sentiment:', emotion, "Proba:", proba)
+        print('Sentiment:', emotion, 'Proba:', proba)
         if proba > THRESHOLD:
-            reaction = servers.find_one({'name': server})['reactions'][emotion]
+            reaction = servers.find_one({'server_id': server_id})[
+                'reactions'][emotion]
             await client.add_reaction(message, reaction)
+
 
 @client.event
 async def on_server_join(server):
-    init_server_db(server, servers)
+    await init_server_db(server, servers)
+    msg = '>>> **Thank you for inviting me to your server!**'
+    + '\nBeep Boop.'
+    + '\n\nCommands:'
+    + '\n```!change <pos, neg, or neu> <emoji>``` '
+    + '- Changes reaction to positive, negative, or neutral comments'
+    + '\n  (need to be admin)'
+    + '\n```!test <pos, neg, neu>```-  Tests reactions.'
+    + '\n\nNote: this bot and its sentiment analysis are still under'
+    + ' development. More "emotions" will be added. Expect wonky behavior...'
+    for channel in server.channels:
+        if str(channel.type) == 'text':
+            await client.send_message(channel, msg)
+            break
 
 
 @client.event
@@ -126,15 +142,9 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-    print('Servers connected to:')
+    print('Servers connected:')
     for server in client.servers:
-        print(server.id)
-
-    # debug and tests
-    db_cursor = servers.find()
-    for item in db_cursor:
-        print(item)
-    print(servers.find_one({"name": "phantasmalpup"})['reactions']['pos'])
+        print(server.id, ':', server.name)
 
 
 client.run(TOKEN)
