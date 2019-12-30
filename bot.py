@@ -12,6 +12,8 @@ THRESHOLD = 0.81
 MIN_CHARS = 15
 EMOTIONS = {0: 'neg', 2: 'neu', 4: 'pos'}  # TODO: make sure keys are correct
 TRAINING_DATA = 'training_data/smaller_tweets.csv'
+PICKLE_VECT = 'pickle_objects/vectorizer.pkl'
+PICKLE_CLF = 'pickle_objects/classifier.pkl'
 
 
 async def init_server_db(server, servers):  # TODO: enforce schema
@@ -39,8 +41,12 @@ servers = db.servers
 client = discord.Client()
 
 # load classifier
-print('Training Classifier')
-vect, clf = train_classifier(TRAINING_DATA)
+if os.path.exists(PICKLE_VECT) and os.path.exists(PICKLE_CLF):
+    vect = pickle.load(open(PICKLE_VECT, 'rb'))
+    clf = pickle.load(open(PICKLE_CLF, 'rb'))
+else:
+    print('Saved Classifier not found! Training classifier')
+    clf, vect = train_classifier(TRAINING_DATA)
 
 
 
