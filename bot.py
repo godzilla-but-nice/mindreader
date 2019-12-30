@@ -5,6 +5,7 @@ import pymongo
 import numpy as np
 import os
 
+
 # config
 TOKEN = os.environ['TOKEN']
 THRESHOLD = 0.7
