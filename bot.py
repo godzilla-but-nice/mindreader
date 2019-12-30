@@ -40,7 +40,7 @@ client = discord.Client()
 
 # load classifier
 print('Training Classifier')
-vect, clf = train_classifier(TRAINING_DATA)
+clf, vect = train_classifier(TRAINING_DATA)
 
 
 
