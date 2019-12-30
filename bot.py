@@ -92,7 +92,7 @@ async def on_message(message):
         parsed_mes = message.content.split()
         try:
             if parsed_mes[1] not in EMOTIONS.values():
-            doc = servers.find_one({'server_id': server_id})
+                doc = servers.find_one({'server_id': server_id})
             reaction = servers.find_one(
                 {'server_id': server_id})['reactions'][parsed_mes[1]]
             await client.add_reaction(message, reaction)
