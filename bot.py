@@ -123,15 +123,15 @@ async def on_server_join(server):
     print('Connecting to new server:')
     print(server.id, ':', server.name)
     await init_server_db(server, servers)
-    msg = '>>> **Thank you for inviting me to your server!**'
-    + '\nBeep Boop.'
-    + '\n\nCommands:'
-    + '\n```!change <pos, neg, or neu> <emoji>``` '
-    + '- Changes reaction to positive, negative, or neutral comments'
-    + '\n  (need to be admin)'
-    + '\n```!test <pos, neg, neu>```-  Tests reactions.'
-    + '\n\nNote: this bot and its sentiment analysis are still under'
-    + ' development. More "emotions" will be added. Expect wonky behavior...'
+    msg = ('>>> **Thank you for inviting me to your server!**'
+    '\nBeep Boop.'
+    '\n\nCommands:'
+    '\n```!change <pos, neg, or neu> <emoji>``` '
+    '- Changes reaction to positive, negative, or neutral comments'
+    '\n  (need to be admin)'
+    '\n```!test <pos, neg, neu>```-  Tests reactions.'
+    '\n\nNote: this bot and its sentiment analysis are still under'
+    ' development. More "emotions" will be added. Expect wonky behavior...')
     for channel in server.channels:
         if str(channel.type) == 'text':
             await client.send_message(channel, msg)
