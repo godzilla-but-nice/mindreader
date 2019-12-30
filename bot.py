@@ -17,7 +17,7 @@ async def init_server_db(server, servers):  # TODO: enforce schema
         return
     servers.insert_one({
         'server_id': server.id,
-        'name': server.name.lower(),
+        'server_name': server.name,
         'reactions': {
             'pos': '😀',
             'neg': '☹️',
@@ -144,6 +144,8 @@ async def on_ready():
     print('------')
     print('Servers connected:')
     for server in client.servers:
+        if servers.find_one({'server_id' : server.id}) == None:
+            await init_server_db(server, servers)
         print(server.id, ':', server.name)
 
 
