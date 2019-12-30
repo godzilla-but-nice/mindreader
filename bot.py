@@ -120,6 +120,8 @@ async def on_message(message):
 
 @client.event
 async def on_server_join(server):
+    print('Connecting to new server:')
+    print(server.id, ':', server.name)
     await init_server_db(server, servers)
     msg = '>>> **Thank you for inviting me to your server!**'
     + '\nBeep Boop.'
