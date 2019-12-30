@@ -4,12 +4,14 @@ import pickle
 import pymongo
 import numpy as np
 import os
+from online_classifier import train_classifier, predict_sentiment
 
 # config
 TOKEN = os.environ['TOKEN']
-THRESHOLD = 0.7
+THRESHOLD = 0.81
 MIN_CHARS = 15
-EMOTIONS = {0: 'neg', 2: 'neu', 1: 'pos'}  # TODO: make sure keys are correct
+EMOTIONS = {0: 'neg', 2: 'neu', 4: 'pos'}  # TODO: make sure keys are correct
+TRAINING_DATA = 'training_data/smaller_tweets.csv'
 
 
 async def init_server_db(server, servers):  # TODO: enforce schema
@@ -26,19 +28,6 @@ async def init_server_db(server, servers):  # TODO: enforce schema
     })
 
 
-def predict_sentiment(classifier, class_dict, input):
-    probs = classifier.predict_proba([input])
-    sent_i = np.argmax(probs)
-    confidence = np.max(probs)
-    sentiment = class_dict[sent_i]
-
-    return (sentiment, confidence)
-
-
-def tokenizer(text):
-    return text.split()
-
-
 # db stuff
 mongo_client = pymongo.MongoClient(
     'mongodb+srv://' + os.environ['DB_USERNAME'] + ':' + os.environ['DB_PASS'] +
@@ -50,7 +39,8 @@ servers = db.servers
 client = discord.Client()
 
 # load classifier
-classifier = pickle.load(open('classifier.pkl', 'rb'))
+vect, clf = train_classifier(TRAINING_DATA)
+
 
 
 @client.event
@@ -110,7 +100,7 @@ async def on_message(message):
     # predict sentiment and react
     if len(message.content) >= MIN_CHARS:
         emotion, proba = predict_sentiment(
-            classifier, EMOTIONS, message.content)
+            clf, vect, EMOTIONS, message.content)
         print('Sentiment:', emotion, 'Proba:', proba)
         if proba > THRESHOLD:
             reaction = servers.find_one({'server_id': server_id})[

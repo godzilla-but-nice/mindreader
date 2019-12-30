@@ -9,9 +9,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import SGDClassifier
 # from tensorflow import keras
 # import tensorflow as tf
-
-data_path = 'training_data/smaller_tweets.csv'
-stop_words = stopwords.words('english')
+try:
+    stop_words = stopwords.words('english')
+except:
+    import nltk
+    nltk.download('stopwords')
+    stop_words = stopwords.words('english')
 
 # preprocessor for text filters out unhelpful words and puts all in lowercase
 def preprocessor(text):
@@ -52,8 +55,9 @@ def get_minibatch(doc_stream, size):
     return docs, y
 
 # call this to predict new text
-def predict_sentiment(classifier, class_dict, input):
-    probs = classifier.predict_proba([input])
+def predict_sentiment(classifier, vectorizer, class_dict, input):
+    vect_input = vectorizer.transform([input])
+    probs = classifier.predict_proba(vect_input)
     sent_i = np.argmax(probs)
     confidence = np.max(probs)
     sentiment = class_dict[sent_i]
@@ -92,4 +96,4 @@ def train_classifier(data_path, num_batches=100, test_frac=0.2):
     X_test = vect.transform(X_test)
     print('\nAccuracy: %.3f' % clf.score(X_test, y_test))
 
-    return vect, clf
+    return clf, vect
