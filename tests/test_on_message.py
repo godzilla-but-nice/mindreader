@@ -1,3 +1,3 @@
-from bot import bot
+from core import bot
 
 bot.startup()

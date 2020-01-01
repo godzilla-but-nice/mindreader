@@ -4,7 +4,7 @@ import pickle
 import pymongo
 import numpy as np
 import os
-from bot.online_classifier import train_classifier, predict_sentiment
+from core.online_classifier import train_classifier, predict_sentiment
 
 # config
 TOKEN = os.environ['TOKEN']
