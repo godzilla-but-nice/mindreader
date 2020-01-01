@@ -6,3 +6,4 @@ pymongo
 dnspython
 pyprind
 nltk
+pytest
