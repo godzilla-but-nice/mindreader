@@ -11,7 +11,7 @@ TOKEN = os.environ['TOKEN']
 THRESHOLD = 0.81
 MIN_CHARS = 15
 EMOTIONS = {0: 'neg', 2: 'neu', 1: 'pos'}  # TODO: make sure keys are correct
-TRAINING_DATA = 'training_data/smaller_tweets.csv'
+TRAINING_DATA = os.path.abspath('training_data/smaller_tweets.csv')
 PICKLE_VECT = os.path.abspath('pickle_objects/vectorizer.pkl')
 PICKLE_CLF = os.path.abspath('pickle_objects/classifier.pkl')
 
