@@ -11,9 +11,9 @@ TOKEN = os.environ['TOKEN']
 THRESHOLD = 0.81
 MIN_CHARS = 15
 EMOTIONS = {0: 'neg', 2: 'neu', 1: 'pos'}  # TODO: make sure keys are correct
-TRAINING_DATA = 'training_data/smaller_tweets.csv'
-PICKLE_VECT = 'pickle_objects/vectorizer.pkl'
-PICKLE_CLF = 'pickle_objects/classifier.pkl'
+TRAINING_DATA = os.path.abspath('core/training_data/smaller_tweets.csv')
+PICKLE_VECT = os.path.abspath('core/pkl_objects/vectorizer.pkl')
+PICKLE_CLF = os.path.abspath('core/pkl_objects/classifier.pkl')
 
 
 async def init_server_db(server, servers):  # TODO: enforce schema

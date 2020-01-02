@@ -93,7 +93,7 @@ def train_classifier(data_path, num_batches=100, test_frac=0.2):
     X_test, y_test = get_minibatch(doc_stream, size=test_size)
     X_test = vect.transform(X_test)
     print('\nAccuracy: %.3f' % clf.score(X_test, y_test))
-    pickle.dump(clf, open('pickle_objects/classifier.pkl', 'wb'))
-    pickle.dump(vect, open('pickle_objects/vectorizer.pkl', 'wb'))
+    pickle.dump(clf, open('core/pkl_objects/classifier.pkl', 'wb'))
+    pickle.dump(vect, open('core/pkl_objects/vectorizer.pkl', 'wb'))
 
     return clf, vect

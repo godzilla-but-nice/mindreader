@@ -4,6 +4,5 @@ numpy
 scikit-learn
 pymongo
 dnspython
-pyprind
 nltk
 pytest
