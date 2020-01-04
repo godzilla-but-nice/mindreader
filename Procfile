@@ -1,1 +1,1 @@
-worker: python bot.py
+worker: PYTHONPATH=. python core/bot.py
