@@ -146,8 +146,8 @@ async def on_ready():
             await init_server_db(server, servers)
         print(server.id, ':', server.name)
 
-def startup():
+async def startup():
     client.run(TOKEN)
-    client.close()
 
-startup()
+if __name__ == '__main__':
+    startup()
