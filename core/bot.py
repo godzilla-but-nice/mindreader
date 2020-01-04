@@ -147,7 +147,8 @@ async def on_ready():
         print(server.id, ':', server.name)
 
 async def startup():
-    client.run(TOKEN)
+    await client.run(TOKEN)
 
 if __name__ == '__main__':
-    startup()
+    client.run(TOKEN)
+
