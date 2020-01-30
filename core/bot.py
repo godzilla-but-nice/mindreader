@@ -4,6 +4,7 @@ import pickle
 import pymongo
 import numpy as np
 import os
+import random
 from core.online_classifier import train_classifier, predict_sentiment
 
 # config
@@ -49,6 +50,12 @@ else:
     print('Saved Classifier not found! Training classifier')
     clf, vect = train_classifier(TRAINING_DATA)
 
+# random game
+def randomItem(ls):
+    return ls[random.randint(0, len(ls) - 1)]
+
+
+
 
 @client.event
 async def on_message(message):
@@ -57,6 +64,14 @@ async def on_message(message):
     # we do not want the bot to reply to itself
     if message.author == client.user:
         return
+
+    # pick a game (or item from list)
+    if message.content.startswith('!pick'):
+        ls = message.content.split()
+        ls.pop(0)
+        msg = '{0.author.mention} randomGame(ls)'
+        msg = msg.format(message)
+        await client.send_message(message.channel, msg)
 
     # change emojis
     if message.content.startswith('!change'):
