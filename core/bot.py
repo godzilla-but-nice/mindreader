@@ -69,7 +69,7 @@ async def on_message(message):
     if message.content.startswith('!pick'):
         ls = message.content.split()
         ls.pop(0)
-        msg = '{0.author.mention} randomGame(ls)'
+        msg = '{0.author.mention} ' + randomItem(ls)
         msg = msg.format(message)
         await client.send_message(message.channel, msg)
 
