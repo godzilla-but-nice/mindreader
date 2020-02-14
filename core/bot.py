@@ -51,10 +51,10 @@ else:
     clf, vect = train_classifier(TRAINING_DATA)
 
 # random game
+
+
 def randomItem(ls):
     return ls[random.randint(0, len(ls) - 1)]
-
-
 
 
 @client.event
@@ -66,9 +66,11 @@ async def on_message(message):
         return
 
     # pick a game (or item from list)
-    if message.content.startswith('!pick'):
-        ls = message.content.split()
-        ls.pop(0)
+    if message.content.startswith('!pick '):
+        message.content = message.content[6:].strip()
+        ls = message.content.split(',')
+        for str in ls:
+            str = str.strip()
         msg = '{0.author.mention} ' + randomItem(ls)
         msg = msg.format(message)
         await client.send_message(message.channel, msg)
@@ -161,9 +163,9 @@ async def on_ready():
             await init_server_db(server, servers)
         print(server.id, ':', server.name)
 
+
 async def startup():
     await client.run(TOKEN)
 
 if __name__ == '__main__':
     client.run(TOKEN)
-
