@@ -158,7 +158,7 @@ async def on_ready():
     print(client.user.id)
     print('------')
     print('Servers connected:')
-    for server in client.servers:
+    for server in client.guilds:
         if servers.find_one({'server_id': server.id}) == None:
             await init_server_db(server, servers)
         print(server.id, ':', server.name)
