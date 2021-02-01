@@ -73,7 +73,7 @@ async def on_message(message):
             str = str.strip()
         msg = '{0.author.mention} ' + randomItem(ls)
         msg = msg.format(message)
-        await client.send_message(message.channel, msg)
+        await message.channel.send(msg)
 
     # change emojis
     if message.content.startswith('!change'):
@@ -88,7 +88,7 @@ async def on_message(message):
         try:
             if parsed_mes[1] not in EMOTIONS.values():
                 raise Exception('Invalid sentiment.')
-            await client.add_reaction(message, parsed_mes[2])
+            await message.add_reaction(parsed_mes[2])
             servers.update_one(
                 {'server_id': server_id},
                 {'$set': {
@@ -100,7 +100,7 @@ async def on_message(message):
         except Exception as e:
             msg = '{0.author.mention} ' + str(e)
             msg = msg.format(message)
-            await client.send_message(message.channel, msg)
+            await message.channel.send_message(msg)
             return
 
     # emoji test
@@ -111,13 +111,13 @@ async def on_message(message):
                 doc = servers.find_one({'server_id': server_id})
             reaction = servers.find_one(
                 {'server_id': server_id})['reactions'][parsed_mes[1]]
-            await client.add_reaction(message, reaction)
+            await message.add_reaction(reaction)
             return
 
         except Exception as e:
             msg = '{0.author.mention} ' + str(e)
             msg = msg.format(message)
-            await client.send_message(message.channel, msg)
+            await message.channel.send_message(msg)
             return
 
     # predict sentiment and react
@@ -128,7 +128,7 @@ async def on_message(message):
         if proba > THRESHOLD:
             reaction = servers.find_one({'server_id': server_id})[
                 'reactions'][emotion]
-            await client.add_reaction(message, reaction)
+            await message.add_reaction(reaction)
 
 
 @client.event
@@ -147,7 +147,7 @@ async def on_server_join(server):
            ' development. More "emotions" will be added. Expect wonky behavior...')
     for channel in server.channels:
         if str(channel.type) == 'text':
-            await client.send_message(channel, msg)
+            await channel.send_message(msg)
             break
 
 
