@@ -60,7 +60,7 @@ def randomItem(ls):
 @client.event
 async def on_message(message):
     global EMOTIONS, THRESHOLD, MIN_CHARS
-    server_id = message.server.id
+    server_id = message.guild.id
     # we do not want the bot to reply to itself
     if message.author == client.user:
         return
