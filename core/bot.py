@@ -78,7 +78,7 @@ async def on_message(message):
     # change emojis
     if message.content.startswith('!change'):
         # need admin permissions
-        if message.author.server_permissions.administrator != True:
+        if message.author.guild_permissions.administrator != True:
             msg = '{0.author.mention}, you do not have permission to issue this command.'
             msg = msg.format(message)
             await client.send_message(message.channel, msg)
