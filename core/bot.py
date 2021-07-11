@@ -64,6 +64,13 @@ async def on_message(message):
     # we do not want the bot to reply to itself
     if message.author == client.user:
         return
+    
+    # dav bowling
+    if message.content.startswith('!dav'):
+        msg = "Don't worry, @GalaxyQuest said he's going bowling"
+        msg.format(message)
+        await client.send_message(message.channel, msg)
+        return
 
     # pick a game (or item from list)
     if message.content.startswith('!pick '):
