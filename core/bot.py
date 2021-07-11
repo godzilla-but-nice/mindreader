@@ -69,7 +69,7 @@ async def on_message(message):
     if message.content.startswith('!dav'):
         msg = "Don't worry, @GalaxyQuest said he's going bowling"
         msg.format(message)
-        await client.send_message(message.channel, msg)
+        await message.channel.send(msg)
         return
 
     # pick a game (or item from list)
