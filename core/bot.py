@@ -64,6 +64,17 @@ async def on_message(message):
     # we do not want the bot to reply to itself
     if message.author == client.user:
         return
+
+    if message.content.startswith('!deleted'):
+        member = message.mentions[0]
+        msg = (f"Messages deleted by {member.mention}:"
+                "> I am very smelly and once pooped up the back of a toilet.\n"
+                "> I am plotting a mutiny to overthrow the captain of our sub. This is the beginning of a new era on Europa.\n"
+                "> Andrew hates Dune and I hate him. Terrible taste in film.\n")
+        msg.format(message)
+        await message.channel.send(msg)
+        return
+
     
     # dav bowling
     if message.content.startswith('!dav'):
