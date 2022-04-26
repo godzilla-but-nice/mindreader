@@ -5,6 +5,7 @@ import pymongo
 import numpy as np
 import os
 import random
+import requests
 from core.online_classifier import train_classifier, predict_sentiment
 
 # config
@@ -15,6 +16,15 @@ EMOTIONS = {0: 'neg', 2: 'neu', 1: 'pos'}  # TODO: make sure keys are correct
 TRAINING_DATA = os.path.abspath('core/training_data/smaller_tweets.csv')
 PICKLE_VECT = os.path.abspath('core/pkl_objects/vectorizer.pkl')
 PICKLE_CLF = os.path.abspath('core/pkl_objects/classifier.pkl')
+
+# insults
+INSULT_ENDPOINT = 'https://insult.mattbas.org/api/insult'
+
+def get_insult(who='Noah'):
+    payload = {'who': who}
+    resp = requests.get(INSULT_ENDPOINT, params=payload)
+    return resp.text
+
 
 
 async def init_server_db(server, servers):  # TODO: enforce schema
@@ -65,6 +75,7 @@ async def on_message(message):
     if message.author == client.user:
         return
 
+    # noah history
     if message.content.startswith('!deleted'):
         member = message.mentions[0]
         msg = (f"Messages deleted by {member.mention}:"
@@ -75,6 +86,11 @@ async def on_message(message):
         await message.channel.send(msg)
         return
 
+    # noah insult
+    if client.user.mentioned_in(message):
+        if message.content.lower().contains('noah'):
+            insult = get_insult('Noah')
+            await message.channel.send(insult)
     
     # dav bowling
     if message.content.startswith('!dav'):
